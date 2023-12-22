@@ -62,7 +62,7 @@ def main():
     print(data_count)
     if data_count == 0:
         # The database is empty, so import data from the spreadsheet
-        excel_path = "C:/Users/Steve/Downloads/finished_spreadsheet.xlsx"  # Update this path
+        excel_path = "Spreadsheet/finished_spreadsheet.xlsx"  # Update this path
         df = read_spreadsheet(excel_path)  # Read data from spreadsheet
         write_to_database(df)  # Write data to database
 
