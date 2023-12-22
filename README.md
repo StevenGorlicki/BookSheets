@@ -1,7 +1,7 @@
 Programmer / Designer - Steven Gorlicki
 My Websites:
-  Linkedin: https://www.linkedin.com/in/steven-gorlicki-57b059284/
-  Handshake: https://app.joinhandshake.com/stu/users/45142002
+* Linkedin: https://www.linkedin.com/in/steven-gorlicki-57b059284/
+* Handshake: https://app.joinhandshake.com/stu/users/45142002
 
 This Application is designed for avid readers / audible listeners to access their history, add memorable details, add service purchased on, and many many more descriptors.
 It also allows for fast searching on certain platforms when given an Author, Title, or Narrator. 
