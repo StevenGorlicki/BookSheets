@@ -1,6 +1,9 @@
 import sqlite3
 import sys
+
+from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QApplication, QMainWindow
+
 from book_list_page import BookListPage
 from home_page import HomePage
 from spreadsheet_loader import initialize_database, read_spreadsheet, write_to_database
@@ -9,6 +12,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.homePageSize = QSize(575, 200)
 
     def initUI(self):
         self.showMaximized()
@@ -25,11 +29,25 @@ class MainWindow(QMainWindow):
         # Switch to the book list page
         self.bookListPage = BookListPage(self)
         self.setCentralWidget(self.bookListPage)
+        self.showMaximized()
 
     def show_home_page(self):
         # Switch back to the home page
         self.homePage = HomePage(self)
         self.setCentralWidget(self.homePage)
+
+        # Resize the window to the preferred size for the homepage
+        self.resize(self.homePageSize)
+
+        # Move the window to the top left of the screen
+        self.move_to_top_left()
+
+    def move_to_top_left(self):
+        # Get the available geometry of the primary screen
+        available_geometry = QApplication.screens()[0].availableGeometry()
+        # Move the window to the top left of the available geometry
+        self.move(available_geometry.topLeft())
+
 
 def main():
     initialize_database()  # Initialize the database
@@ -41,7 +59,7 @@ def main():
     # Check if the 'books' table has any data
     cursor.execute("SELECT COUNT(*) FROM books")
     data_count = cursor.fetchone()[0]
-
+    print(data_count)
     if data_count == 0:
         # The database is empty, so import data from the spreadsheet
         excel_path = "C:/Users/Steve/Downloads/finished_spreadsheet.xlsx"  # Update this path
@@ -54,6 +72,7 @@ def main():
     # Continue with the rest of your application setup
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
+
     mainWindow.show()
     sys.exit(app.exec_())
 
