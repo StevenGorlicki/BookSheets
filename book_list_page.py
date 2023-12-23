@@ -1,6 +1,10 @@
 from PySide6.QtWidgets import QWidget, QTableWidget, QVBoxLayout, QTableWidgetItem, QPushButton, \
-    QHBoxLayout, QLabel, QSpacerItem, QSizePolicy, QLineEdit, QComboBox
+    QHBoxLayout, QLabel, QSpacerItem, QSizePolicy, QLineEdit, QComboBox, QMessageBox
 from PySide6.QtCore import Qt
+from convert_to_spread import export_database_to_spreadsheet
+
+import os
+from pathlib import Path
 import sqlite3
 
 
@@ -105,6 +109,10 @@ class BookListPage(QWidget):
 
         searchLayout = QHBoxLayout()
 
+
+
+
+
         # Search by Title
         self.searchTitle = QLineEdit(self)
         self.searchTitle.setPlaceholderText("Search by Title")
@@ -127,6 +135,10 @@ class BookListPage(QWidget):
         self.searchButton.clicked.connect(self.perform_search)
 
         mainLayout.addLayout(searchLayout)
+
+        self.downloadButton = QPushButton('Download as Spreadsheet')
+        self.downloadButton.clicked.connect(self.download_spreadsheet)
+        mainLayout.addWidget(self.downloadButton)
 
     def save_changes_to_db(self):
         conn = sqlite3.connect('books.db')
@@ -308,3 +320,16 @@ class BookListPage(QWidget):
                 self.table.selectRow(row)
                 self.table.scrollToItem(self.table.item(row, 0))
                 break  # Comment out this line if you want to continue searching for additional matches
+
+    def download_spreadsheet(self):
+        try:
+            # Get the path to the user's Downloads folder
+            downloads_path = str(Path.home() / 'Downloads')
+            output_path = os.path.join(downloads_path, 'exported_books.xlsx')
+
+            export_database_to_spreadsheet(output_path=output_path)
+
+            QMessageBox.information(self, "Download Complete",
+                                    f"Spreadsheet downloaded successfully to {output_path}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
