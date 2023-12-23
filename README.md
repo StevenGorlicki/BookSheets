@@ -12,7 +12,24 @@ Fast database insertion / Editing
 
 
 * TO USE THE APPLICATION
+
+* UPDATED
+
+Simply open the "Dist" folder given, and download the raw file (Your Antivirus Software will likely flag this application as a trojan as it is an untrusted executable) 
+You may have to disable / run anyway when asked by your windows antivirus 
+- This is soon to be updated and fixed (hopefully)
   
+Once the app is on your desktop, simply open it, and copy the path of the spreadsheet you'd like to use (likely at the top of your recently downloaded files, you will only need to do this once). 
+Your file should look something like C:User/Name/Location/etc - PLEASE REMOVE ANY "" FROM YOUR PATH - 
+
+Thats it :D
+
+
+
+
+
+* OUTDATED
+
 - You must, format your spreadsheet as required, or modify ANY and ALL SQLITE code to match the format of your spreadsheet, this should be possible with limited programming experience, as you must simply change the name of the headers to match your own sheet.
 - If your sheet matches the format of the one given, download your sheet, and follow the instructions given in the "convert_to_db.py" file. DO NOT MODIFY AND OTHER SECTIONS OF THIS PROGRAM.
 
