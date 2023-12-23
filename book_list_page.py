@@ -231,8 +231,21 @@ class BookListPage(QWidget):
         if not self.is_loading_data:
             self.changed_rows.add(item.row())
 
+    def prompt_save_changes(self):
+        if self.changed_rows:
+            reply = QMessageBox.question(self, 'Save Changes',
+                                         "You have unsaved changes. Would you like to save them before exiting?",
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+
+            if reply == QMessageBox.Yes:
+                self.save_changes_to_db()
+
+
+
     def on_return_home_clicked(self):
+        self.prompt_save_changes()
         self.main_window.show_home_page()
+
 
     def get_column_name_by_index(self, index):
         columns = ["id", "title", "author", "characters", "audible", "narrator", "quotes", "content", "recommend", "service"]

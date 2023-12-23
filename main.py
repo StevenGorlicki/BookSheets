@@ -2,7 +2,7 @@ import sqlite3
 import sys
 
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 
 from InputPage import SpreadsheetInputPage
 from book_list_page import BookListPage
@@ -14,6 +14,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.initUI()
         self.homePageSize = QSize(575, 200)
+
 
     def initUI(self):
         self.showMaximized()
@@ -43,7 +44,22 @@ class MainWindow(QMainWindow):
         # Move the window to the top left of the screen
         self.move_to_top_left()
 
+    def closeEvent(self, event):
 
+        if self.bookListPage.changed_rows:
+            reply = QMessageBox.question(self, 'Save Changes',
+                                         "You have unsaved changes. Would you like to save them before exiting?",
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+
+            if reply == QMessageBox.Yes:
+                self.bookListPage.save_changes_to_db()
+                event.accept()
+            elif reply == QMessageBox.No:
+                event.accept()
+            else:
+                event.ignore()
+        else:
+            event.accept()
 
     def show_spreadsheet_input_page(self):
         self.spreadsheetInputPage = SpreadsheetInputPage(self)
