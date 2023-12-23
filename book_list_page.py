@@ -10,13 +10,17 @@ import sqlite3
 
 class CaseInsensitiveTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
-        if self.text() == "" and other.text() == "":
+        my_text = self.text().strip()
+        other_text = other.text().strip()
+
+        if my_text == "" and other_text == "":
             return False
-        if self.text() == "":
+        if my_text == "":
+            return False
+        if other_text == "":
             return True
-        if other.text() == "":
-            return False
-        return self.text().lower() < other.text().lower()
+
+        return my_text.lower() < other_text.lower()
 
 
 class BookListPage(QWidget):
