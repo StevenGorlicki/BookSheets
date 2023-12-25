@@ -29,8 +29,16 @@ class HomePage(QWidget):
         self.button.setMinimumHeight(50)  # Set a minimum height to make the button taller
         layout.addWidget(self.button, 4, 0, 1, 2)  # Span 2 columns
 
+        self.booksPageButton = QPushButton('Books', self)
+        self.booksPageButton.clicked.connect(self.on_books_page_button_clicked)
+        self.booksPageButton.setMinimumHeight(50)
+        layout.addWidget(self.booksPageButton, 5, 0, 1, 2)
         self.setLayout(layout)
 
+        self.wishlistPageButton = QPushButton('Wishlist', self)
+        self.wishlistPageButton.clicked.connect(self.on_wishlist_page_button_clicked)
+        self.wishlistPageButton.setMinimumHeight(50)
+        layout.addWidget(self.wishlistPageButton, 6, 0, 1, 2)
     def add_search_field(self, layout, label_text, row):
         label_font = QFont()
         label_font.setPointSize(12)
@@ -100,3 +108,9 @@ class HomePage(QWidget):
 
     def on_button_clicked(self):
         self.parent().show_book_list_page()
+
+    def on_books_page_button_clicked(self):
+        self.parent().show_books_page()
+
+    def on_wishlist_page_button_clicked(self):
+        self.parent().show_wishlist_page()

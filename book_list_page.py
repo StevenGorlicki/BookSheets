@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QTableWidget, QVBoxLayout, QTableWidgetItem, QPushButton, \
-    QHBoxLayout, QLabel, QSpacerItem, QSizePolicy, QLineEdit, QComboBox, QMessageBox
+    QHBoxLayout, QLabel, QSpacerItem, QSizePolicy, QLineEdit, QComboBox, QMessageBox, QInputDialog
 from PySide6.QtCore import Qt
 from convert_to_spread import export_database_to_spreadsheet
 
@@ -52,7 +52,7 @@ class BookListPage(QWidget):
         ])
 
         # Define custom widths for each column
-        column_widths = [200, 100, 180, 80, 105, 280, 340, 90, 120]
+        column_widths = [135, 100, 127, 65, 120, 300, 340, 90, 120]
 
         # Set the width for each column
         for column in range(self.table.columnCount()):
@@ -91,14 +91,27 @@ class BookListPage(QWidget):
         self.addFiveRowsButton.clicked.connect(lambda: self.add_new_rows(5))
         buttonLayout.addWidget(self.addFiveRowsButton)
 
+
+
+
         self.sortLabel = QLabel("Sort By:")
         buttonLayout.addWidget(self.sortLabel)
-
 
         self.sortComboBox = QComboBox(self)
         self.sortComboBox.addItems(["Author", "Book Title", "Narrator", "Service"])
         self.sortComboBox.currentIndexChanged.connect(self.sort_table)  # Connect to the sorting function
         buttonLayout.addWidget(self.sortComboBox)
+
+        # self.addColumnButton = QPushButton("Add Column", self)
+        # self.addColumnButton.clicked.connect(self.add_column)
+        # buttonLayout.addWidget(self.addColumnButton)
+        #
+        # self.renameColumnButton = QPushButton("Rename Column", self)
+        # self.renameColumnButton.clicked.connect(self.rename_column)
+        # buttonLayout.addWidget(self.renameColumnButton)
+
+
+
 
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         buttonLayout.addSpacerItem(spacer)
@@ -226,6 +239,47 @@ class BookListPage(QWidget):
         conn.close()
         self.changed_rows.clear()
         self.load_data_from_db()
+
+    # def add_column_to_db(self, column_name):
+    #     conn = sqlite3.connect('books.db')
+    #     cursor = conn.cursor()
+    #     cursor.execute(f"ALTER TABLE books ADD COLUMN {column_name} TEXT")
+    #     conn.commit()
+    #     conn.close()
+    #
+    # def rename_column_in_db(self, old_column_name, new_column_name):
+    #     conn = sqlite3.connect('books.db')
+    #     cursor = conn.cursor()
+    #
+    #     cursor.execute(f"ALTER TABLE books RENAME COLUMN {old_column_name} TO {new_column_name}")
+    #     conn.commit()
+    #     conn.close()
+    #
+    # def add_column(self):
+    #     column_name, ok = QInputDialog.getText(self, "Add Column", "Enter the name of the new column:")
+    #     if ok and column_name:
+    #         self.add_column_to_db(column_name)
+    #         self.table.insertColumn(self.table.columnCount())
+    #         self.table.setHorizontalHeaderLabels(self.get_all_column_names_from_db())
+    #
+    # def rename_column(self):
+    #     old_column_name, ok = QInputDialog.getItem(self, "Rename Column", "Select a column:",
+    #                                                self.get_all_column_names_from_db())
+    #     if ok and old_column_name:
+    #         new_column_name, ok = QInputDialog.getText(self, "Rename Column", "Enter the new name for the column:")
+    #         if ok and new_column_name:
+    #             self.rename_column_in_db(old_column_name, new_column_name)
+    #             self.load_data_from_db()  # Refresh the table to reflect changes
+    #
+    # def get_all_column_names_from_db(self):
+    #     conn = sqlite3.connect('books.db')
+    #     cursor = conn.cursor()
+    #     cursor.execute("PRAGMA table_info(books)")
+    #     columns = [info[1] for info in cursor.fetchall()]  # index 1 is the column name
+    #     conn.close()
+    #     return columns[1:]
+
+
 
     def track_change(self, item):
         if not self.is_loading_data:

@@ -8,6 +8,9 @@ from InputPage import SpreadsheetInputPage
 from book_list_page import BookListPage
 from home_page import HomePage
 from spreadsheet_loader import initialize_database, read_spreadsheet, write_to_database
+from kindle_style import BooksPage
+from wishlist_page import WishlistPage
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -82,6 +85,16 @@ class MainWindow(QMainWindow):
         frame_geometry.moveCenter(center_point)
         self.move(frame_geometry.topLeft())
 
+    def show_books_page(self):
+        # Switch to the books page
+        self.booksPage = BooksPage(self, api_key='AIzaSyD7csG5Upx8KHj1wjGT0RZmqs72tsGY2jk')  # Pass your API key here
+        self.setCentralWidget(self.booksPage)
+        self.showMaximized()
+
+    def show_wishlist_page(self):
+        self.wishlistPage = WishlistPage(self, api_key='AIzaSyD7csG5Upx8KHj1wjGT0RZmqs72tsGY2jk')  # Pass your API key here
+        self.setCentralWidget(self.wishlistPage)
+        self.wishlistPage.show()
 
 def main():
     initialize_database()  # Initialize the database
