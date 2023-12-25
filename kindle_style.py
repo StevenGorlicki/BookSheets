@@ -90,10 +90,14 @@ class BooksPage(QWidget):
         self.load_owned_books()
 
     def load_owned_books(self):
-        titles = fetch_book_titles_from_db()
-        for title in titles:
+        books = fetch_book_titles_from_db()
+        for book in books:
+            title = book['title']
+            author = book['author']
             cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
-            if not os.path.exists(cover_path):
+            if os.path.exists(cover_path):
+                self.display_book_item(title, author, cover_path)
+            else:
                 self.queue.put(title)
         QTimer.singleShot(0, self.process_next)
 
