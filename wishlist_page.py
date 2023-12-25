@@ -1,3 +1,4 @@
+# FINALIZED
 import os
 import sqlite3
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QGridLayout, QScrollArea, \
@@ -181,4 +182,5 @@ class WishlistPage(QWidget):
 
 
     def on_return_home_clicked(self):
+
         self.main_window.show_home_page()

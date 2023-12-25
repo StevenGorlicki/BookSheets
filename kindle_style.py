@@ -1,3 +1,4 @@
+# FINALIZED
 import os
 import sqlite3
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QGridLayout, QScrollArea, \

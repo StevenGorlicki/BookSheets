@@ -1,3 +1,4 @@
+# FINALIZED
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QDesktopServices, QFont
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QComboBox, QLineEdit, QLabel, QGridLayout, QMessageBox
