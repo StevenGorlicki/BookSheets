@@ -1,97 +1,131 @@
-from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QVBoxLayout, QScrollArea, QSizePolicy
+import os
+import sqlite3
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QGridLayout, QScrollArea, \
+    QMessageBox, QSizePolicy
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
-import sqlite3
+
+import threading
 import json
-import os
 import requests
+from PySide6.QtCore import QThread, Signal
+from fetch_db_titles import fetch_book_titles_from_db
+
+class ApiThread(QThread):
+    result_signal = Signal(str, str, str)  # title, author, cover_path
+
+    def __init__(self, titles, api_key, covers_dir):
+        QThread.__init__(self)
+        self.titles = titles
+        self.api_key = api_key
+        self.covers_dir = covers_dir
+
+    def run(self):
+        for title in self.titles:
+            title_query = '+'.join(title.split())
+            url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}&key={self.api_key}"
+            response = requests.get(url)
+            if response.status_code == 200:
+                print("how oftern is this running.")
+                data = response.json()
+                items = data.get('items')
+                if not items:
+                    self.result_signal.emit(title, "", "")
+                    continue
+
+                book_info = items[0]['volumeInfo']
+                authors = book_info.get('authors', ['Unknown Author'])
+                cover_url = book_info.get('imageLinks', {}).get('thumbnail', '')
+
+                image_response = requests.get(cover_url)
+                if image_response.status_code == 200:
+                    cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
+                    with open(cover_path, 'wb') as f:
+                        f.write(image_response.content)
+                    self.result_signal.emit(title, ', '.join(authors), cover_path)
+                else:
+                    self.result_signal.emit(title, ', '.join(authors), "")
+            else:
+                self.result_signal.emit(title, "", "")
+
+
 
 class BooksPage(QWidget):
-    def __init__(self, parent=None, api_key=''):
-        super().__init__(parent)
+    def __init__(self, main_window, parent=None, api_key=''):
+        super().__init__()
+        self.main_window = main_window
         self.api_key = api_key
-        self.cached_covers_file = 'cached_covers.json'
-        self.cached_covers = self.load_cached_covers()
+        self.covers_dir = 'covers'
+        self.current_row = 0
+        self.current_column = 0
+        self.max_columns = 4  # Adjust as needed
         self.initUI()
 
     def initUI(self):
-        scroll = QScrollArea(self)
-        scroll.setWidgetResizable(True)
-        self.grid_layout = QGridLayout()
-        self.grid_layout.setHorizontalSpacing(10)  # Adjust spacing as needed
-        self.grid_layout.setVerticalSpacing(100)  # Adjust spacing as needed
 
-        container = QWidget()
-        container.setLayout(self.grid_layout)
-        scroll.setWidget(container)
 
+        # ... rest of the UI setup ...
         layout = QVBoxLayout(self)
-        layout.addWidget(scroll)
-        self.display_books()
 
-    def load_cached_covers(self):
-        if os.path.exists(self.cached_covers_file):
-            with open(self.cached_covers_file, 'r') as file:
-                return json.load(file)
-        return {}
+        self.returnHomeButton = QPushButton('Return Home')
+        self.returnHomeButton.clicked.connect(self.on_return_home_clicked)
+        layout.addWidget(self.returnHomeButton)
 
-    def save_cached_covers(self):
-        with open(self.cached_covers_file, 'w') as file:
-            json.dump(self.cached_covers, file)
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidgetResizable(True)
+        self.books_layout = QGridLayout()
+        self.books_container = QWidget()
+        self.books_container.setLayout(self.books_layout)
+        self.scroll_area.setWidget(self.books_container)
+        layout.addWidget(self.scroll_area)
+        self.load_owned_books()
 
-    def get_book_cover_url(self, title):
-        # First, try to get the cover URL from the cached data
-        cached_url = self.cached_covers.get(title)
-        if cached_url:
-            return cached_url
-
-        # If the cover URL is not cached, fetch it from the API
-        title_query = '+'.join(title.split())
-        url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}&key={self.api_key}"
-
-        try:
-            response = requests.get(url)
-            response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
-            data = response.json()
-            items = data.get('items')
-
-            if not items:
-                print(f"No cover found for title: {title}")
-                return None
-
-            cover_url = items[0]['volumeInfo'].get('imageLinks', {}).get('thumbnail')
-
-            # Cache the new cover URL
-            self.cached_covers[title] = cover_url
-            self.save_cached_covers()  # Make sure to implement this method to save the cache to a file
-
-            return cover_url
-        except requests.HTTPError as http_err:
-            print(f"HTTP error occurred: {http_err}")
-        except Exception as err:
-            print(f"Other error occurred: {err}")
-
-        return None
-
-    def display_books(self):
-        conn = sqlite3.connect('books.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT title, author FROM books")
-        books = cursor.fetchall()
-        conn.close()
-
-        for i, (title, author) in enumerate(books):
-            cover_url = self.get_book_cover_url(title)
-            cover_label = QLabel(self)
-            cover_label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-            if cover_url:
-                pixmap = QPixmap(cover_url)  # Assuming the cover_url is a local file path
-                cover_label.setPixmap(pixmap.scaled(100, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+    def load_owned_books(self):
+        titles = fetch_book_titles_from_db()
+        for title in titles:
+            cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
+            if os.path.exists(cover_path):
+                # If the cover image exists, display it directly
+                self.display_book_item(title, "", cover_path)
             else:
-                cover_label.setText("Cover not loaded")
-            self.grid_layout.addWidget(cover_label, i, 0)
+                # If the cover image does not exist, start the API thread to fetch it
+                self.api_thread = ApiThread([title], self.api_key, self.covers_dir)
+                self.api_thread.result_signal.connect(self.display_book_item)
+                self.api_thread.start()
 
-            title_label = QLabel(f"Title: {title}")
-            author_label = QLabel(f"Author: {author}")
-            self.grid_layout.addWidget(title_label, i, 1)
-            self.grid_layout.addWidget(author_label, i, 2)
+    def display_book_item(self, title, author, cover_path):
+        item_widget = QWidget()
+        item_layout = QVBoxLayout(item_widget)
+
+        cover_label = QLabel(self)
+        cover_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        cover_label.setAlignment(Qt.AlignCenter)
+        if cover_path and os.path.exists(cover_path):
+            pixmap = QPixmap(cover_path)
+            cover_label.setPixmap(pixmap.scaled(150, 225, Qt.KeepAspectRatio))
+        else:
+            cover_label.setText("Cover not loaded")
+        item_layout.addWidget(cover_label, 0, Qt.AlignCenter)
+
+        title_label = QLabel(f"Title: {title}")
+        author_label = QLabel(f"Author: {author}")
+        title_label.setAlignment(Qt.AlignCenter)
+        author_label.setAlignment(Qt.AlignCenter)
+        item_layout.addWidget(title_label)
+        item_layout.addWidget(author_label)
+
+        item_layout.addStretch()
+
+        row, col = self.get_next_available_grid_position()
+        self.books_layout.addWidget(item_widget, row, col)
+
+    def get_next_available_grid_position(self):
+        position = (self.current_row, self.current_column)
+        self.current_column += 1
+        if self.current_column >= self.max_columns:
+            self.current_column = 0
+            self.current_row += 1
+        return position
+
+    def on_return_home_clicked(self):
+        self.main_window.show_home_page()

@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
     def show_wishlist_page(self):
         self.wishlistPage = WishlistPage(self, api_key='AIzaSyD7csG5Upx8KHj1wjGT0RZmqs72tsGY2jk')  # Pass your API key here
         self.setCentralWidget(self.wishlistPage)
-        self.wishlistPage.show()
+        self.showMaximized()
 
 def main():
     initialize_database()  # Initialize the database
