@@ -1,10 +1,11 @@
-# FINALIZED
 import os
 import sqlite3
+from queue import Queue
+
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QGridLayout, QScrollArea, \
     QMessageBox, QSizePolicy
 from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 
 import threading
 import json
@@ -22,32 +23,36 @@ class ApiThread(QThread):
         self.covers_dir = covers_dir
 
     def run(self):
-        for title in self.titles:
-            title_query = '+'.join(title.split())
-            url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}&key={self.api_key}"
-            response = requests.get(url)
-            if response.status_code == 200:
-                print("how oftern is this running.")
-                data = response.json()
-                items = data.get('items')
-                if not items:
-                    self.result_signal.emit(title, "", "")
-                    continue
+        try:
 
-                book_info = items[0]['volumeInfo']
-                authors = book_info.get('authors', ['Unknown Author'])
-                cover_url = book_info.get('imageLinks', {}).get('thumbnail', '')
+            for title in self.titles:
+                title_query = '+'.join(title.split())
+                url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}&key={self.api_key}"
+                response = requests.get(url)
+                if response.status_code == 200:
+                    print("how oftern is this running.")
+                    data = response.json()
+                    items = data.get('items')
+                    if not items:
+                        self.result_signal.emit(title, "", "")
+                        continue
 
-                image_response = requests.get(cover_url)
-                if image_response.status_code == 200:
-                    cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
-                    with open(cover_path, 'wb') as f:
-                        f.write(image_response.content)
-                    self.result_signal.emit(title, ', '.join(authors), cover_path)
+                    book_info = items[0]['volumeInfo']
+                    authors = book_info.get('authors', ['Unknown Author'])
+                    cover_url = book_info.get('imageLinks', {}).get('thumbnail', '')
+
+                    image_response = requests.get(cover_url)
+                    if image_response.status_code == 200:
+                        cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
+                        with open(cover_path, 'wb') as f:
+                            f.write(image_response.content)
+                        self.result_signal.emit(title, ', '.join(authors), cover_path)
+                    else:
+                        self.result_signal.emit(title, ', '.join(authors), "")
                 else:
-                    self.result_signal.emit(title, ', '.join(authors), "")
-            else:
-                self.result_signal.emit(title, "", "")
+                    self.result_signal.emit(title, "", "")
+        except Exception as e:
+            print(f"Error in ApiThread: {e}")
 
 
 
@@ -57,6 +62,8 @@ class BooksPage(QWidget):
         self.main_window = main_window
         self.api_key = api_key
         self.covers_dir = 'covers'
+        self.queue = Queue()
+        self.api_thread = None
         self.current_row = 0
         self.current_column = 0
         self.max_columns = 4  # Adjust as needed
@@ -85,14 +92,20 @@ class BooksPage(QWidget):
         titles = fetch_book_titles_from_db()
         for title in titles:
             cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
-            if os.path.exists(cover_path):
-                # If the cover image exists, display it directly
-                self.display_book_item(title, "", cover_path)
-            else:
-                # If the cover image does not exist, start the API thread to fetch it
-                self.api_thread = ApiThread([title], self.api_key, self.covers_dir)
-                self.api_thread.result_signal.connect(self.display_book_item)
-                self.api_thread.start()
+            if not os.path.exists(cover_path):
+                self.queue.put(title)
+        QTimer.singleShot(0, self.process_next)
+
+    def process_next(self):
+        if not self.queue.empty() and (self.api_thread is None or not self.api_thread.isRunning()):
+            title = self.queue.get()
+            cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
+            self.api_thread = ApiThread([title], self.api_key, self.covers_dir)
+            self.api_thread.result_signal.connect(self.display_book_item)
+            self.api_thread.finished.connect(self.process_next)  # When one thread finishes, process the next
+            self.api_thread.start()
+        elif self.queue.empty() and self.api_thread is not None:
+            self.api_thread.finished.disconnect(self.process_next)
 
     def display_book_item(self, title, author, cover_path):
         item_widget = QWidget()

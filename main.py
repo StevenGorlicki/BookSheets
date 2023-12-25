@@ -1,6 +1,7 @@
 # FINALIZED
 import sqlite3
 import sys
+import os
 
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
@@ -16,8 +17,11 @@ from wishlist_page import WishlistPage
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        create_directory_if_not_exists('covers')
+        create_directory_if_not_exists('wishlist')
         self.initUI()
         self.homePageSize = QSize(575, 200)
+
 
 
     def initUI(self):
@@ -96,6 +100,11 @@ class MainWindow(QMainWindow):
         self.wishlistPage = WishlistPage(self, api_key='AIzaSyD7csG5Upx8KHj1wjGT0RZmqs72tsGY2jk')  # Pass your API key here
         self.setCentralWidget(self.wishlistPage)
         self.showMaximized()
+
+
+def create_directory_if_not_exists(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 def main():
     initialize_database()  # Initialize the database
