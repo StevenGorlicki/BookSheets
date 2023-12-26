@@ -1,5 +1,5 @@
 # FINALIZED
-
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QWidget, QTableWidget, QVBoxLayout, QTableWidgetItem, QPushButton, \
     QHBoxLayout, QLabel, QSpacerItem, QSizePolicy, QLineEdit, QComboBox, QMessageBox, QInputDialog
 from PySide6.QtCore import Qt
@@ -38,6 +38,13 @@ class BookListPage(QWidget):
 
 
     def initUI(self):
+
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor('#42F2C2'))
+        self.setPalette(p)
+
+
         mainLayout = QVBoxLayout()
 
         # Create a table widget
@@ -119,6 +126,8 @@ class BookListPage(QWidget):
         buttonLayout.addSpacerItem(spacer)
 
         self.saveButton = QPushButton('Save Changes')
+        self.saveButton.setStyleSheet("background-color: #F17B4A;")  # Neon yellow color
+
         self.saveButton.clicked.connect(self.save_changes_to_db)
         buttonLayout.addWidget(self.saveButton)
 

@@ -5,7 +5,7 @@ from queue import Queue
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QGridLayout, QScrollArea, \
     QMessageBox, QSizePolicy
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtCore import Qt, QTimer
 
 import threading
@@ -71,6 +71,11 @@ class BooksPage(QWidget):
         self.initUI()
 
     def initUI(self):
+
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor('#42F2C2'))
+        self.setPalette(p)
 
 
         # ... rest of the UI setup ...

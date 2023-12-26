@@ -3,7 +3,7 @@ import os
 import sqlite3
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QGridLayout, QScrollArea, \
     QMessageBox, QSizePolicy
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtCore import Qt
 
 
@@ -71,7 +71,10 @@ class WishlistPage(QWidget):
 
     def initUI(self):
 
-
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor('#42F2C2'))
+        self.setPalette(p)
 
 
         layout = QVBoxLayout(self)
@@ -99,6 +102,8 @@ class WishlistPage(QWidget):
         self.wishlist_container.setLayout(self.wishlist_layout)
         self.scroll_area.setWidget(self.wishlist_container)
         layout.addWidget(self.scroll_area)
+
+
 
         self.load_wishlist()
 
@@ -135,11 +140,19 @@ class WishlistPage(QWidget):
             self.save_wishlist_item(title, author, cover_path)
         else:
             cover_label.setText("Cover not loaded")
+
+        remove_button = QPushButton("Remove", self)
+        remove_button.clicked.connect(lambda: self.confirm_removal(title))
+        remove_button.setMaximumWidth(50)  # Adjust the width as needed
+        remove_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        item_layout.addWidget(remove_button, 0, Qt.AlignCenter)
         item_layout.addWidget(cover_label, 0, Qt.AlignCenter)
 
         # Add the title and author labels
         title_label = QLabel(f"Title: {title}")
         author_label = QLabel(f"Author: {author}")
+
+
         title_label.setAlignment(Qt.AlignCenter)
         author_label.setAlignment(Qt.AlignCenter)
         item_layout.addWidget(title_label)
@@ -184,3 +197,26 @@ class WishlistPage(QWidget):
     def on_return_home_clicked(self):
 
         self.main_window.show_home_page()
+
+    def confirm_removal(self, title):
+        reply = QMessageBox.question(self, 'Remove Book',
+                                     f"Are you sure you want to remove '{title}' from your wishlist?",
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.remove_book_from_wishlist(title)
+
+    def remove_book_from_wishlist(self, title):
+        # Remove the book from the JSON file and update the UI
+        wishlist_items = self.get_all_wishlist_items()
+        if title in wishlist_items:
+            del wishlist_items[title]
+            with open('wishlist.json', 'w') as f:
+                json.dump(wishlist_items, f)
+            self.refresh_wishlist_display()
+
+    def refresh_wishlist_display(self):
+        # Clear the existing widgets and reload the wishlist
+        for i in reversed(range(self.wishlist_layout.count())):
+            self.wishlist_layout.itemAt(i).widget().setParent(None)
+        self.load_wishlist()

@@ -1,6 +1,6 @@
 # FINALIZED
 from PySide6.QtCore import QUrl
-from PySide6.QtGui import QDesktopServices, QFont
+from PySide6.QtGui import QDesktopServices, QFont, QColor
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QComboBox, QLineEdit, QLabel, QGridLayout, QMessageBox
 
 
@@ -10,6 +10,10 @@ class HomePage(QWidget):
         self.initUI()
 
     def initUI(self):
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor('#42F2C2'))
+        self.setPalette(p)
         layout = QGridLayout()
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setVerticalSpacing(10)
@@ -25,18 +29,18 @@ class HomePage(QWidget):
         self.narrator_input = self.add_search_field(layout, "Narrator", 3)
 
         # Existing button to go to the book list
-        self.button = QPushButton('Go to Book List', self)
+        self.button = QPushButton('Open Spreadsheet', self)
         self.button.clicked.connect(self.on_button_clicked)
         self.button.setMinimumHeight(50)  # Set a minimum height to make the button taller
         layout.addWidget(self.button, 4, 0, 1, 2)  # Span 2 columns
 
-        self.booksPageButton = QPushButton('Books', self)
+        self.booksPageButton = QPushButton('Open Books', self)
         self.booksPageButton.clicked.connect(self.on_books_page_button_clicked)
         self.booksPageButton.setMinimumHeight(50)
         layout.addWidget(self.booksPageButton, 5, 0, 1, 2)
         self.setLayout(layout)
 
-        self.wishlistPageButton = QPushButton('Wishlist', self)
+        self.wishlistPageButton = QPushButton('Open Wishlist', self)
         self.wishlistPageButton.clicked.connect(self.on_wishlist_page_button_clicked)
         self.wishlistPageButton.setMinimumHeight(50)
         layout.addWidget(self.wishlistPageButton, 6, 0, 1, 2)
