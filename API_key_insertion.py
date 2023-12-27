@@ -1,6 +1,7 @@
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QDialog, QLineEdit, QLabel, QVBoxLayout, QPushButton
-
+import configparser
+import os
 
 class ApiKeyInputDialog(QDialog):
     def __init__(self, parent=None):
@@ -21,3 +22,18 @@ class ApiKeyInputDialog(QDialog):
 
     def get_api_key(self):
         return self.api_key_input.text().strip()
+
+    @staticmethod
+    def save_api_key(api_key):
+        config = configparser.ConfigParser()
+        config['DEFAULT'] = {'ApiKey': api_key}
+        with open('config.ini', 'w') as configfile:
+            config.write(configfile)
+
+    @staticmethod
+    def load_api_key():
+        if not os.path.exists('config.ini'):
+            return None
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        return config['DEFAULT'].get('ApiKey', None)

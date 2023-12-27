@@ -29,11 +29,13 @@ class ApiThread(QThread):
                 title_query = '+'.join(title.split())
                 author_query = '+'.join(author.split())
                 url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}+inauthor:{author_query}&key={self.api_key}"
+                print(url)
                 response = requests.get(url)
 
                 if response.status_code == 200:
                     data = response.json()
                     items = data.get('items')
+                    print(items)
                     if not items:
                         self.result_signal.emit(title, "", "")
                         continue

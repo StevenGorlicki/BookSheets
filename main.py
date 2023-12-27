@@ -4,6 +4,7 @@ import sys
 import os
 
 from API_key_insertion import ApiKeyInputDialog
+
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton
@@ -56,17 +57,18 @@ class MainWindow(QMainWindow):
         self.move_to_top_left()
 
     def check_and_input_api_key(self):
-        if not self.api_key:  # Check if the API key is not set
+        self.api_key = ApiKeyInputDialog.load_api_key()  # Static method call
+        if not self.api_key:
             dialog = ApiKeyInputDialog(self)
             if dialog.exec_():
-                self.api_key = dialog.get_api_key()  # Get the API key from the dialog
+                self.api_key = dialog.get_api_key()
+                ApiKeyInputDialog.save_api_key(self.api_key)
 
     def is_api_key_saved(self):
-        return bool(self.api_key)  # Check if the API key attribute is set
+        return bool(self.api_key)
 
     def get_saved_api_key(self):
         return self.api_key
-
 
 
     def closeEvent(self, event):
