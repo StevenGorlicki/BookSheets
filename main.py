@@ -3,8 +3,10 @@ import sqlite3
 import sys
 import os
 
+from API_key_insertion import ApiKeyInputDialog
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton
 
 from InputPage import SpreadsheetInputPage
 from book_list_page import BookListPage
@@ -52,6 +54,32 @@ class MainWindow(QMainWindow):
         # Move the window to the top left of the screen
         self.move_to_top_left()
 
+    def check_and_input_api_key(self):
+        # Check if API key is saved
+        # If not, show the dialog
+        if not self.is_api_key_saved():
+            dialog = ApiKeyInputDialog(self)
+            if dialog.exec_():
+                # The API key has been entered and saved
+                pass
+
+    def is_api_key_saved(self):
+        try:
+            with open('api_key.txt', 'r') as file:
+                api_key = file.read().strip()
+                return api_key != ""
+        except FileNotFoundError:
+            return False
+
+    def get_saved_api_key(self):
+        try:
+            with open('api_key.txt', 'r') as file:
+                return file.read().strip()
+        except FileNotFoundError:
+            return ""
+
+
+
     def closeEvent(self, event):
 
         if self.bookListPage.changed_rows:
@@ -91,13 +119,14 @@ class MainWindow(QMainWindow):
         self.move(frame_geometry.topLeft())
 
     def show_books_page(self):
-        # Switch to the books page
-        self.booksPage = BooksPage(self, api_key='AIzaSyD7csG5Upx8KHj1wjGT0RZmqs72tsGY2jk')  # Pass your API key here
+        api_key = self.get_saved_api_key()
+        self.booksPage = BooksPage(self, api_key=api_key)
         self.setCentralWidget(self.booksPage)
         self.showMaximized()
 
     def show_wishlist_page(self):
-        self.wishlistPage = WishlistPage(self, api_key='AIzaSyD7csG5Upx8KHj1wjGT0RZmqs72tsGY2jk')  # Pass your API key here
+        api_key = self.get_saved_api_key()
+        self.wishlistPage = WishlistPage(self, api_key=api_key)
         self.setCentralWidget(self.wishlistPage)
         self.showMaximized()
 
@@ -123,18 +152,40 @@ def main():
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
 
-    if data_count == 0:
-        mainWindow.show_spreadsheet_input_page()
-    else:
-        mainWindow.show_home_page()
+    # Don't show the main window until we've checked the API key and data count
+    # mainWindow.show()  # This line should be commented out or removed
 
-    mainWindow.show()
+    # Check and prompt for the API key if not saved
+    api_key_exists = mainWindow.is_api_key_saved()
+    if not api_key_exists:
+        mainWindow.check_and_input_api_key()  # This should show the dialog synchronously
+        api_key_exists = mainWindow.is_api_key_saved()  # Check again after the dialog is closed
+
+    # Now, depending on the API key and data count, decide what to do next
+    if api_key_exists:
+        if data_count == 0:
+            mainWindow.show_spreadsheet_input_page()
+        else:
+            mainWindow.show_home_page()
+        mainWindow.show()  # Now we show the main window
+    else:
+        # If the API key still isn't set, we inform the user and exit
+        QMessageBox.warning(None, "API Key Required", "An API key is required to use this application.")
+        sys.exit()  # Exit the application
+
     sys.exit(app.exec_())
 
-
 if __name__ == '__main__':
     main()
 
 
-if __name__ == '__main__':
-    main()
+
+
+
+
+
+
+
+
+
+

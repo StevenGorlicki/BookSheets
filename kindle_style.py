@@ -29,15 +29,12 @@ class ApiThread(QThread):
                 title_query = '+'.join(title.split())
                 author_query = '+'.join(author.split())
                 url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}+inauthor:{author_query}&key={self.api_key}"
-                print("Request URL:", url)
                 response = requests.get(url)
 
                 if response.status_code == 200:
                     data = response.json()
                     items = data.get('items')
-
                     if not items:
-                        print("No items found for:", title)
                         self.result_signal.emit(title, "", "")
                         continue
 
@@ -47,26 +44,19 @@ class ApiThread(QThread):
                         cover_url = book_info.get('imageLinks', {}).get('thumbnail')
 
                         if cover_url:
-                            print("Attempting to download cover from:", cover_url)
                             image_response = requests.get(cover_url)
                             if image_response.status_code == 200:
                                 cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
                                 with open(cover_path, 'wb') as f:
                                     f.write(image_response.content)
-                                print("Cover downloaded successfully for:", title)
                                 self.result_signal.emit(title, ', '.join(current_authors), cover_path)
                                 break
-                            else:
-                                print(f"Failed to download cover for {title} from {cover_url}")
-                        else:
-                            print(f"No cover URL found for {title}")
+
 
                     else:
-                        print(f"No valid cover found for {title}")
-                        self.result_signal.emit(title, 'Unknown Author', "")
+                        self.result_signal.emit(title, author, "")
                 else:
-                    print(f"Failed to fetch data from API for {title}")
-                    self.result_signal.emit(title, "", "")
+                    self.result_signal.emit(title, author, "")
         except Exception as e:
             print(f"Error in ApiThread: {e}")
 
