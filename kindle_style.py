@@ -17,44 +17,58 @@ from fetch_db_titles import fetch_book_titles_from_db
 class ApiThread(QThread):
     result_signal = Signal(str, str, str)  # title, author, cover_path
 
-    def __init__(self, titles, api_key, covers_dir):
+    def __init__(self, books, api_key, covers_dir):
         QThread.__init__(self)
-        self.titles = titles
+        self.books = books
         self.api_key = api_key
         self.covers_dir = covers_dir
 
     def run(self):
         try:
-
-            for title in self.titles:
+            for title, author in self.books:
                 title_query = '+'.join(title.split())
-                url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}&key={self.api_key}"
+                author_query = '+'.join(author.split())
+                url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}+inauthor:{author_query}&key={self.api_key}"
+                print("Request URL:", url)
                 response = requests.get(url)
+
                 if response.status_code == 200:
-                    print("how oftern is this running.")
                     data = response.json()
                     items = data.get('items')
+
                     if not items:
+                        print("No items found for:", title)
                         self.result_signal.emit(title, "", "")
                         continue
 
-                    book_info = items[0]['volumeInfo']
-                    authors = book_info.get('authors', ['Unknown Author'])
-                    cover_url = book_info.get('imageLinks', {}).get('thumbnail', '')
+                    for item in items:
+                        book_info = item.get('volumeInfo', {})
+                        current_authors = book_info.get('authors', ['Unknown Author'])
+                        cover_url = book_info.get('imageLinks', {}).get('thumbnail')
 
-                    image_response = requests.get(cover_url)
-                    if image_response.status_code == 200:
-                        cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
-                        with open(cover_path, 'wb') as f:
-                            f.write(image_response.content)
-                        self.result_signal.emit(title, ', '.join(authors), cover_path)
+                        if cover_url:
+                            print("Attempting to download cover from:", cover_url)
+                            image_response = requests.get(cover_url)
+                            if image_response.status_code == 200:
+                                cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
+                                with open(cover_path, 'wb') as f:
+                                    f.write(image_response.content)
+                                print("Cover downloaded successfully for:", title)
+                                self.result_signal.emit(title, ', '.join(current_authors), cover_path)
+                                break
+                            else:
+                                print(f"Failed to download cover for {title} from {cover_url}")
+                        else:
+                            print(f"No cover URL found for {title}")
+
                     else:
-                        self.result_signal.emit(title, ', '.join(authors), "")
+                        print(f"No valid cover found for {title}")
+                        self.result_signal.emit(title, 'Unknown Author', "")
                 else:
+                    print(f"Failed to fetch data from API for {title}")
                     self.result_signal.emit(title, "", "")
         except Exception as e:
             print(f"Error in ApiThread: {e}")
-
 
 
 class BooksPage(QWidget):
@@ -103,14 +117,14 @@ class BooksPage(QWidget):
             if os.path.exists(cover_path):
                 self.display_book_item(title, author, cover_path)
             else:
-                self.queue.put(title)
+                self.queue.put((title, author))  # Put a tuple of title and author in the queue
         QTimer.singleShot(0, self.process_next)
 
     def process_next(self):
         if not self.queue.empty() and (self.api_thread is None or not self.api_thread.isRunning()):
-            title = self.queue.get()
+            title, author = self.queue.get()
             cover_path = os.path.join(self.covers_dir, f"{title}.jpg")
-            self.api_thread = ApiThread([title], self.api_key, self.covers_dir)
+            self.api_thread = ApiThread([(title, author)], self.api_key, self.covers_dir)
             self.api_thread.result_signal.connect(self.display_book_item)
             self.api_thread.finished.connect(self.process_next)  # When one thread finishes, process the next
             self.api_thread.start()
