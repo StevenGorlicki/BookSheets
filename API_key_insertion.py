@@ -16,12 +16,8 @@ class ApiKeyInputDialog(QDialog):
         self.layout.addWidget(self.api_key_input)
 
         self.submit_button = QPushButton("Submit", self)
-        self.submit_button.clicked.connect(self.submit_api_key)
+        self.submit_button.clicked.connect(self.accept)  # We will get the API key after the dialog is accepted
         self.layout.addWidget(self.submit_button)
 
-    def submit_api_key(self):
-        api_key = self.api_key_input.text().strip()
-        if api_key:
-            with open('api_key.txt', 'w') as file:
-                file.write(api_key)
-            self.accept()
+    def get_api_key(self):
+        return self.api_key_input.text().strip()

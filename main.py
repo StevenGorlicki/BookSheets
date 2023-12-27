@@ -19,6 +19,7 @@ from wishlist_page import WishlistPage
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.api_key = None
         create_directory_if_not_exists('covers')
         create_directory_if_not_exists('wishlist')
         self.initUI()
@@ -55,28 +56,16 @@ class MainWindow(QMainWindow):
         self.move_to_top_left()
 
     def check_and_input_api_key(self):
-        # Check if API key is saved
-        # If not, show the dialog
-        if not self.is_api_key_saved():
+        if not self.api_key:  # Check if the API key is not set
             dialog = ApiKeyInputDialog(self)
             if dialog.exec_():
-                # The API key has been entered and saved
-                pass
+                self.api_key = dialog.get_api_key()  # Get the API key from the dialog
 
     def is_api_key_saved(self):
-        try:
-            with open('api_key.txt', 'r') as file:
-                api_key = file.read().strip()
-                return api_key != ""
-        except FileNotFoundError:
-            return False
+        return bool(self.api_key)  # Check if the API key attribute is set
 
     def get_saved_api_key(self):
-        try:
-            with open('api_key.txt', 'r') as file:
-                return file.read().strip()
-        except FileNotFoundError:
-            return ""
+        return self.api_key
 
 
 
@@ -152,17 +141,11 @@ def main():
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
 
-    # Don't show the main window until we've checked the API key and data count
-    # mainWindow.show()  # This line should be commented out or removed
-
-    # Check and prompt for the API key if not saved
-    api_key_exists = mainWindow.is_api_key_saved()
-    if not api_key_exists:
-        mainWindow.check_and_input_api_key()  # This should show the dialog synchronously
-        api_key_exists = mainWindow.is_api_key_saved()  # Check again after the dialog is closed
+    # Don't show the main window until we've checked the API key
+    mainWindow.check_and_input_api_key()  # This will prompt for the API key if not set
 
     # Now, depending on the API key and data count, decide what to do next
-    if api_key_exists:
+    if mainWindow.is_api_key_saved():
         if data_count == 0:
             mainWindow.show_spreadsheet_input_page()
         else:
@@ -174,6 +157,7 @@ def main():
         sys.exit()  # Exit the application
 
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()
