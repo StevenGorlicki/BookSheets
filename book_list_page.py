@@ -174,31 +174,34 @@ class BookListPage(QWidget):
 
         for row in range(self.table.rowCount()):
             # Check if the row has been changed
-            if row in self.changed_rows:
-                # Fetch the item in the ID column
-                id_item = self.table.item(row, 0)
-                id_value = id_item.text() if id_item else None
+            title_item = self.table.item(row, 0)  # Assuming 0 is the column index for title
+            author_item = self.table.item(row, 1)  # Assuming 1 is the column index for author
+            if title_item and author_item and title_item.text().strip() and author_item.text().strip():
+                if row in self.changed_rows:
+                    # Fetch the item in the ID column
+                    id_item = self.table.item(row, 0)
+                    id_value = id_item.text() if id_item else None
 
-                # Prepare the values for all columns
-                values = [self.table.item(row, col).text() if self.table.item(row, col) else '' for col in
-                          range(self.table.columnCount())]
+                    # Prepare the values for all columns
+                    values = [self.table.item(row, col).text() if self.table.item(row, col) else '' for col in
+                              range(self.table.columnCount())]
 
-                if id_value and id_value.isdigit():
-                    # Existing row - UPDATE
-                    cursor.execute("""
-                        UPDATE books SET 
-                        title=?, author=?, "Memorable Characters"=?, audible=?, narrator=?, 
-                        "Best Quotes"=?, "Memorable Content"=?, recommend=?, service=?
-                        WHERE id=?
-                    """, values + [id_value])
-                else:
-                    # New row - INSERT
-                    cursor.execute("""
-                        INSERT INTO books (
-                            title, author, "Memorable Characters", audible, narrator, 
-                            "Best Quotes", "Memorable Content", recommend, service
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, values[1:])  # Assuming first value is ID and should be skipped
+                    if id_value and id_value.isdigit():
+                        # Existing row - UPDATE
+                        cursor.execute("""
+                            UPDATE books SET 
+                            title=?, author=?, "Memorable Characters"=?, audible=?, narrator=?, 
+                            "Best Quotes"=?, "Memorable Content"=?, recommend=?, service=?
+                            WHERE id=?
+                        """, values + [id_value])
+                    else:
+                        # New row - INSERT
+                        cursor.execute("""
+                            INSERT INTO books (
+                                title, author, "Memorable Characters", audible, narrator, 
+                                "Best Quotes", "Memorable Content", recommend, service
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """, values[1:])  # Assuming first value is ID and should be skipped
 
         conn.commit()
         conn.close()

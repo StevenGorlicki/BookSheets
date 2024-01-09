@@ -15,16 +15,19 @@ from PySide6.QtCore import QThread, Signal
 class ApiThread(QThread):
     result_signal = Signal(str, str, str)  # title, author, cover_path
 
-    def __init__(self, title, api_key, wishlist_dir):
+    def __init__(self, title, author, api_key, wishlist_dir):
         QThread.__init__(self)
         self.title = title
+        self.author = author
         self.api_key = api_key
         self.wishlist_dir = wishlist_dir
 
 
     def run(self):
         title_query = '+'.join(self.title.split())
-        url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}&key={self.api_key}"
+        author_query = '+'.join(self.author.split())
+        url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}+inauthor:{author_query}&key={self.api_key}"
+
         print(f"Querying API with URL: {url}")
         response = requests.get(url)
 
@@ -86,6 +89,10 @@ class WishlistPage(QWidget):
         self.add_book_input.setPlaceholderText("Enter a book title to add to your wishlist")
         layout.addWidget(self.add_book_input)
 
+        self.add_author_input = QLineEdit(self)
+        self.add_author_input.setPlaceholderText("Enter the books author")
+        layout.addWidget(self.add_author_input)
+
         self.add_book_button = QPushButton("Add to Wishlist", self)
         self.add_book_button.clicked.connect(self.add_book_to_wishlist)
         layout.addWidget(self.add_book_button)
@@ -109,6 +116,7 @@ class WishlistPage(QWidget):
 
     def add_book_to_wishlist(self):
         title = self.add_book_input.text().strip()
+        author = self.add_author_input.text().strip()
         if not title:
             QMessageBox.warning(self, "Warning", "Please enter a book title.")
             return
@@ -118,10 +126,10 @@ class WishlistPage(QWidget):
                                wishlist_items.items()}  # Normalize existing wishlist titles to lowercase
 
         if title in normalized_wishlist:
-            QMessageBox.information(self, "Information", f"'{title}' is already in your wishlist.")
+            QMessageBox.information(self, "Information", f"<b>'{title}' is already in your wishlist.</b><br><br><b>Warning:</b> This program does not support\nwishlisting unique books with the same title.")
             return
         # Start the API thread
-        self.api_thread = ApiThread(title, self.api_key, self.wishlist_dir)
+        self.api_thread = ApiThread(title, author, self.api_key, self.wishlist_dir)
         self.api_thread.result_signal.connect(self.display_wishlist_item)
         self.api_thread.start()
 
@@ -216,7 +224,17 @@ class WishlistPage(QWidget):
             self.refresh_wishlist_display()
 
     def refresh_wishlist_display(self):
-        # Clear the existing widgets and reload the wishlist
+        # Clear the existing widgets
         for i in reversed(range(self.wishlist_layout.count())):
-            self.wishlist_layout.itemAt(i).widget().setParent(None)
+            widget_to_remove = self.wishlist_layout.itemAt(i).widget()
+            # Remove the widget from the layout
+            self.wishlist_layout.removeWidget(widget_to_remove)
+            # Delete the widget
+            widget_to_remove.deleteLater()
+
+        # Reset the grid position counters
+        self.current_row = 0
+        self.current_column = 0
+
+        # Reload the wishlist
         self.load_wishlist()

@@ -26,6 +26,10 @@ class ApiThread(QThread):
     def run(self):
         try:
             for title, author in self.books:
+                # Skip if title or author is empty or consists only of whitespace
+                if not title.strip() or not author.strip():
+                    continue
+
                 title_query = '+'.join(title.split())
                 author_query = '+'.join(author.split())
                 url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}+inauthor:{author_query}&key={self.api_key}"
@@ -53,14 +57,13 @@ class ApiThread(QThread):
                                     f.write(image_response.content)
                                 self.result_signal.emit(title, ', '.join(current_authors), cover_path)
                                 break
-
-
                     else:
                         self.result_signal.emit(title, author, "")
                 else:
                     self.result_signal.emit(title, author, "")
         except Exception as e:
             print(f"Error in ApiThread: {e}")
+
 
 
 class BooksPage(QWidget):
