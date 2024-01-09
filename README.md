@@ -19,7 +19,15 @@ Fast database insertion / Editing
 Simply open the "Dist" folder given, and download the raw file (Your Antivirus Software will likely flag this application as a trojan as it is an untrusted executable) 
 You may have to disable / run anyway when asked by your windows antivirus 
 - This is soon to be updated and fixed (hopefully)
-  
+
+Follow the instructions given on the App or read below:
+
+You must go to the link given on the first page and create a Google API Key, follow the instructions there. You must do this in order to access books and book covers as they will be pulled from Google's database
+
+(You will only need to do this once, with a limit of loading 1000 unique books per day, where previous books will be saved after the first day so you can have thousands of books after a few days)
+or
+(You can add multiple API Keys if you're in a time crunch / have at minimum 10000 unique book loads per day)
+
 Once the app is on your desktop, simply open it, and copy the path of the spreadsheet you'd like to use (likely at the top of your recently downloaded files, you will only need to do this once). 
 Your file should look something like C:User/Name/Location/etc - PLEASE REMOVE ANY "" FROM YOUR PATH - 
 
