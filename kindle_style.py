@@ -126,6 +126,9 @@ class BooksPage(QWidget):
         elif self.queue.empty() and self.api_thread is not None:
             self.api_thread.finished.disconnect(self.process_next)
 
+    def truncate_text(self, text, max_length):
+        return (text[:max_length - 3] + '...') if len(text) > max_length else text
+
     def display_book_item(self, title, author, cover_path):
         item_widget = QWidget()
         item_layout = QVBoxLayout(item_widget)
@@ -140,8 +143,10 @@ class BooksPage(QWidget):
             cover_label.setText("Cover not loaded")
         item_layout.addWidget(cover_label, 0, Qt.AlignCenter)
 
+        truncated_author = self.truncate_text(author, 37)
+
         title_label = QLabel(f"Title: {title}")
-        author_label = QLabel(f"Author: {author}")
+        author_label = QLabel(f"Author: {truncated_author}")
         title_label.setAlignment(Qt.AlignCenter)
         author_label.setAlignment(Qt.AlignCenter)
         item_layout.addWidget(title_label)
@@ -162,3 +167,4 @@ class BooksPage(QWidget):
 
     def on_return_home_clicked(self):
         self.main_window.show_home_page()
+

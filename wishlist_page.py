@@ -133,6 +133,9 @@ class WishlistPage(QWidget):
         self.api_thread.result_signal.connect(self.display_wishlist_item)
         self.api_thread.start()
 
+    def truncate_text(self, text, max_length):
+        return (text[:max_length - 3] + '...') if len(text) > max_length else text
+
     def display_wishlist_item(self, title, author, cover_path):
         # Create a container widget and a layout for each wishlist item
         item_widget = QWidget()
@@ -157,8 +160,10 @@ class WishlistPage(QWidget):
         item_layout.addWidget(cover_label, 0, Qt.AlignCenter)
 
         # Add the title and author labels
+        truncated_author = self.truncate_text(author, 37)
+
         title_label = QLabel(f"Title: {title}")
-        author_label = QLabel(f"Author: {author}")
+        author_label = QLabel(f"Author: {truncated_author}")
 
 
         title_label.setAlignment(Qt.AlignCenter)
@@ -238,3 +243,4 @@ class WishlistPage(QWidget):
 
         # Reload the wishlist
         self.load_wishlist()
+
