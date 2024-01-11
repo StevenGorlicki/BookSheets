@@ -36,6 +36,7 @@ class ApiThread(QThread):
             data = response.json()
             items = data.get('items')
             if not items:
+                print("Why are we here")
                 self.result_signal.emit(self.title, "", "")
                 return
 
@@ -46,13 +47,19 @@ class ApiThread(QThread):
             cover_url = book_info.get('imageLinks', {}).get('thumbnail', '')
 
             # Download the cover image
+            if not cover_url:
+                self.result_signal.emit(title, ', '.join(authors), "")
+                return
+
             image_response = requests.get(cover_url)
             if image_response.status_code == 200:
+                print("Why are we not here")
                 cover_path = os.path.join(self.wishlist_dir, f"{title}.jpg")
                 with open(cover_path, 'wb') as f:
                     f.write(image_response.content)
 
                 self.result_signal.emit(title, ', '.join(authors), cover_path)
+
         else:
             self.result_signal.emit(self.title, "", "")
 
@@ -150,7 +157,9 @@ class WishlistPage(QWidget):
             cover_label.setPixmap(pixmap.scaled(150, 225, Qt.KeepAspectRatio))
             self.save_wishlist_item(title, author, cover_path)
         else:
-            cover_label.setText("Cover not loaded")
+            cover_path = ""
+            self.save_wishlist_item(title, author, cover_path)
+            cover_label.setText("No Cover/Book Found.")
 
         remove_button = QPushButton("Remove", self)
         remove_button.clicked.connect(lambda: self.confirm_removal(title))
@@ -195,6 +204,7 @@ class WishlistPage(QWidget):
     def load_wishlist(self):
         wishlist_items = self.get_all_wishlist_items()
         for title, info in wishlist_items.items():
+            # needs if prob
             self.display_wishlist_item(title, info['author'], info['cover_path'])
 
     def get_next_available_grid_position(self):
