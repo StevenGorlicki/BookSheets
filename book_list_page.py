@@ -126,7 +126,7 @@ class BookListPage(QWidget):
         buttonLayout.addSpacerItem(spacer)
 
         self.saveButton = QPushButton('Save Changes')
-        self.saveButton.setStyleSheet("background-color: #F17B4A;")  # Neon yellow color
+        self.saveButton.setStyleSheet("background-color: #ffff00;")  # Neon yellow color #F17B4A OLD
 
         self.saveButton.clicked.connect(self.save_changes_to_db)
         buttonLayout.addWidget(self.saveButton)
