@@ -21,6 +21,7 @@ class ApiThread(QThread):
         self.author = author
         self.api_key = api_key
         self.wishlist_dir = wishlist_dir
+        print(wishlist_dir)
 
 
     def run(self):
@@ -68,7 +69,9 @@ class WishlistPage(QWidget):
         super().__init__()
         self.main_window = main_window
         self.api_key = api_key
-        self.wishlist_dir = 'wishlist'
+        self.wishlist_dir = 'BooksDataFolder/wishlist'  # Update this line
+        self.wishlist_json_path = os.path.join(self.wishlist_dir, 'wishlist.json')  # Define the JSON path
+        os.makedirs(self.wishlist_dir, exist_ok=True)
         self.current_row = 0
         self.current_column = 0
         self.max_columns = 4
@@ -188,16 +191,15 @@ class WishlistPage(QWidget):
         self.wishlist_layout.addWidget(item_widget, row, col)
 
     def save_wishlist_item(self, title, author, cover_path):
-        # Assuming you have a method to get all wishlist items
         wishlist_items = self.get_all_wishlist_items()
         wishlist_items[title] = {'author': author, 'cover_path': cover_path}
 
-        with open('wishlist.json', 'w') as f:
+        with open(self.wishlist_json_path, 'w') as f:
             json.dump(wishlist_items, f)
 
     def get_all_wishlist_items(self):
-        if os.path.exists('wishlist.json'):
-            with open('wishlist.json', 'r') as f:
+        if os.path.exists(self.wishlist_json_path):
+            with open(self.wishlist_json_path, 'r') as f:
                 return json.load(f)
         return {}
 
@@ -230,11 +232,10 @@ class WishlistPage(QWidget):
             self.remove_book_from_wishlist(title)
 
     def remove_book_from_wishlist(self, title):
-        # Remove the book from the JSON file and update the UI
         wishlist_items = self.get_all_wishlist_items()
         if title in wishlist_items:
             del wishlist_items[title]
-            with open('wishlist.json', 'w') as f:
+            with open(self.wishlist_json_path, 'w') as f:
                 json.dump(wishlist_items, f)
             self.refresh_wishlist_display()
 

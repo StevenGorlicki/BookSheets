@@ -71,7 +71,7 @@ class BooksPage(QWidget):
         super().__init__()
         self.main_window = main_window
         self.api_key = api_key
-        self.covers_dir = 'covers'
+        self.covers_dir = 'BooksDataFolder/covers'
         self.queue = Queue()
         self.api_thread = None
         self.current_row = 0

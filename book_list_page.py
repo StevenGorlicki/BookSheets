@@ -169,7 +169,7 @@ class BookListPage(QWidget):
         mainLayout.addWidget(self.downloadButton)
 
     def save_changes_to_db(self):
-        conn = sqlite3.connect('books.db')
+        conn = sqlite3.connect('BooksDataFolder/books.db')
         cursor = conn.cursor()
 
         for row in range(self.table.rowCount()):
@@ -224,7 +224,7 @@ class BookListPage(QWidget):
         self.changed_rows.add(item.row())
 
     def save_changes_to_db(self):
-        conn = sqlite3.connect('books.db')
+        conn = sqlite3.connect('BooksDataFolder/books.db')
         cursor = conn.cursor()
 
         for row in self.changed_rows:
@@ -329,7 +329,7 @@ class BookListPage(QWidget):
         self.is_loading_data = True
         self.row_id_map.clear()  # Clear existing ID map
 
-        conn = sqlite3.connect('books.db')
+        conn = sqlite3.connect('BooksDataFolder/books.db')
         cursor = conn.cursor()
         cursor.execute(
             'SELECT id, title, author, "Memorable Characters", audible, narrator, "Best Quotes", "Memorable Content", recommend, service FROM books')

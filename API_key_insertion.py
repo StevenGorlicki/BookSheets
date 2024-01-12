@@ -27,13 +27,13 @@ class ApiKeyInputDialog(QDialog):
     def save_api_key(api_key):
         config = configparser.ConfigParser()
         config['DEFAULT'] = {'ApiKey': api_key}
-        with open('config.ini', 'w') as configfile:
+        with open('BooksDataFolder/config.ini', 'w') as configfile:
             config.write(configfile)
 
     @staticmethod
     def load_api_key():
-        if not os.path.exists('config.ini'):
+        if not os.path.exists('BooksDataFolder/config.ini'):
             return None
         config = configparser.ConfigParser()
-        config.read('config.ini')
+        config.read('BooksDataFolder/config.ini')
         return config['DEFAULT'].get('ApiKey', None)

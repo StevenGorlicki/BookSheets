@@ -130,7 +130,7 @@ def main():
     initialize_database()  # Initialize the database
 
     # Create a connection to the SQLite database
-    conn = sqlite3.connect('books.db')
+    conn = sqlite3.connect('BooksDataFolder/books.db')
     cursor = conn.cursor()
 
     # Check if the 'books' table has any data

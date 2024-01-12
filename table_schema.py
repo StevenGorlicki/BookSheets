@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connect to the SQLite database
-conn = sqlite3.connect('books.db')
+conn = sqlite3.connect('BooksDataFolder/books.db')
 cursor = conn.cursor()
 
 # Retrieve the schema of the 'books' table

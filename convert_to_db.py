@@ -21,7 +21,7 @@ def read_spreadsheet(excel_path):
 
 
 # Step 2: Write the DataFrame to a SQLite database
-def write_to_database(df, db_path='books.db'):
+def write_to_database(df, db_path='BooksDataFolder/books.db'):
     conn = sqlite3.connect(db_path)
     # Ensure there's no 'id' column in the DataFrame
     df.to_sql('books', conn, if_exists='append', index=False)
