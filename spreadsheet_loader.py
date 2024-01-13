@@ -1,7 +1,7 @@
 import pandas as pd
 import sqlite3
 
-def initialize_database(db_path='books.db'):
+def initialize_database(db_path='BooksDataFolder/books.db'):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
@@ -36,7 +36,7 @@ def read_spreadsheet(excel_path):
     df = df.iloc[:, :-1]
     return df
 
-def write_to_database(df, db_path='books.db'):
+def write_to_database(df, db_path='BooksDataFolder/books.db'):
     conn = sqlite3.connect(db_path)
 
     # Check for null or empty titles and handle them

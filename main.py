@@ -21,8 +21,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.api_key = None
-        create_directory_if_not_exists('covers')
-        create_directory_if_not_exists('wishlist')
+        create_directory_if_not_exists('BooksDataFolder/covers')
+        create_directory_if_not_exists('BooksDataFolder/wishlist')
         self.initUI()
         self.homePageSize = QSize(575, 200)
 

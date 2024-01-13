@@ -1,7 +1,7 @@
 import pandas as pd
 import sqlite3
 
-def export_database_to_spreadsheet(db_path='books.db', output_path='exported_books.xlsx'):
+def export_database_to_spreadsheet(db_path='BooksDataFolder/books.db', output_path='exported_books.xlsx'):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_path)
 
