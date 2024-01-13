@@ -127,6 +127,8 @@ def create_directory_if_not_exists(directory):
         os.makedirs(directory)
 
 def main():
+    create_directory_if_not_exists('BooksDataFolder/covers')
+    create_directory_if_not_exists('BooksDataFolder/wishlist')
     initialize_database()  # Initialize the database
 
     # Create a connection to the SQLite database
