@@ -254,4 +254,3 @@ class WishlistPage(QWidget):
 
         # Reload the wishlist
         self.load_wishlist()
-
