@@ -4,46 +4,31 @@ My Websites:
 * Linkedin: https://www.linkedin.com/in/steven-gorlicki-57b059284/
 * Handshake: https://app.joinhandshake.com/stu/users/45142002
 
-This Application is designed for avid readers / audible listeners to access their history, add memorable details, add service purchased on, and many many more descriptors.
-It also allows for fast searching on certain platforms when given an Author, Title, or Narrator. 
+This Application is designed for avid readers / audible listeners to access their history, add memorable details, add service purchased on, and many many more descriptors. (Better SpreadSheets)
+It also allows you to instantly search on Kindle Unlimited, Audible, Hoopla, and Chirp for your favorite books, author, or narrator. 
 Provides better accessibility for large text areas in comparison to excel or sheets, allowing for quoting and summaries to be included in a visually pleasant format.
-Provides search and sorting functionalities, with many others to come
+*NEW* Provides a Kindle Style book list and Wishlist, where you can see the cover of your books in color, with authors and book titles. (Through the Help of Google Books API's)
+Also provides an external folder with Better formatting you can find in the "BooksDataFolder" under wishlist and covers.
 
 Fast database insertion / Editing
 
 
 * TO USE THE APPLICATION
 
-* UPDATED
-
-Simply open the "Dist" folder given, and download the raw file (Your Antivirus Software will likely flag this application as a trojan as it is an untrusted executable) 
-You may have to disable / run anyway when asked by your windows antivirus 
-- This is soon to be updated and fixed (hopefully)
+Open The "Dist" Folder, Click "main", and click Download on the right side.
+After downloading, the app will appear in your recently downloads folder. It is recommended to move this icon to your desktop as many other apps, but this is entirely up to the user.
+*WARNING* You may be prompted to disable windows antivirus or click, "Run Anyway" when downloading or opening the app for the first time.
+This is because Windows automatically flags executable files as potential threats, this app has no threat to the health of your computer.
 
 Follow the instructions given on the App or read below:
 
-You must go to the link given on the first page and create a Google API Key, follow the instructions there. You must do this in order to access books and book covers as they will be pulled from Google's database
+Go To the Link below to Create a Google API Key, as it is required to pull book covers from online into your own application. Click, "Create Credentials," "API Key," and then press "Show Key" and put it into the app when prompted. You will only need to do this ONCE.
+Link: https://console.cloud.google.com/apis/credentials?pli=1&project=eminent-bond-409100
 
-(You will only need to do this once, with a limit of loading 1000 unique books per day, where previous books will be saved after the first day so you can have thousands of books after a few days)
-or
-(You can add multiple API Keys if you're in a time crunch / have at minimum 10000 unique book loads per day)
+(Note, There is a limit of loading 1000 unique books per day, where previous books will be saved after the first day so you can have thousands of books after a few days)
 
-Once the app is on your desktop, simply open it, and copy the path of the spreadsheet you'd like to use (likely at the top of your recently downloaded files, you will only need to do this once). 
-Your file should look something like C:User/Name/Location/etc - PLEASE REMOVE ANY "" FROM YOUR PATH - 
+Then, Download your current spreadsheet of books, find it in your downloads folder, and click "Copy as Path" which you then enter as prompted. (MAKE SURE TO REMOVE THE QUOTATION MARKS FROM THE PATH)
+If you're just starting, theres an option to automatically create an empty spreadsheet for you.
 
-Thats it :D
+That's it!. It may seem complex, but once you download and read the instructions, its as easy as 3 steps. Download, Create an API Key, and Create a Spreadsheet, and you'll be good to go!
 
-
-
-
-
-* OUTDATED
-
-- You must, format your spreadsheet as required, or modify ANY and ALL SQLITE code to match the format of your spreadsheet, this should be possible with limited programming experience, as you must simply change the name of the headers to match your own sheet.
-- If your sheet matches the format of the one given, download your sheet, and follow the instructions given in the "convert_to_db.py" file. DO NOT MODIFY AND OTHER SECTIONS OF THIS PROGRAM.
-
-I intend to update this application to include a spreadsheet reader which will automatically format your spreadsheet to fit with this application, but this is not possible as of right now. 
-
-
-* This application will soon be transitioned into a downloadable application, to make it more accessible for those with limited understanding of GitHub. 
-* Keep in mind this application is stored directly onto your hard drive. Please make backups of your spreadsheet / Database periodically, as this app does not come with cloud storage YET
