@@ -32,6 +32,3 @@ def write_to_database(df, db_path='BooksDataFolder/books.db'):
 # ENTER FILE NAME BELOW as, excel_path = "Placeholder_path" #
 # WINDOWS USERS >>> PLEASE CHANGE '\' to '/' OR IT WON'T WORK #
 
-excel_path = "C:/Users/Steve/Downloads/finished_spreadsheet.xlsx"  # Change this to the path of your spreadsheet
-df = read_spreadsheet(excel_path)
-write_to_database(df)
