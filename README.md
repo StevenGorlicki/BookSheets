@@ -15,7 +15,7 @@ Fast database insertion / Editing
 
 * TO USE THE APPLICATION
 
-On the Right side of the home page, Under Releases, Click BookSheets Release. Then click main.exe to begin the download.
+On the right side of the home page, under releases, click "BookSheets Release". Then click main.exe to begin the download.
 
 OR
 
