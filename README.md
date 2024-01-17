@@ -7,7 +7,7 @@ My Websites:
 This Application is designed for avid readers / audible listeners to access their history, add memorable details, add service purchased on, and many many more descriptors. (Better SpreadSheets)
 It also allows you to instantly search on Kindle Unlimited, Audible, Hoopla, and Chirp for your favorite books, author, or narrator. 
 Provides better accessibility for large text areas in comparison to excel or sheets, allowing for quoting and summaries to be included in a visually pleasant format.
-*NEW* Provides a Kindle Style book list and Wishlist, where you can see the cover of your books in color, with authors and book titles. (Through the Help of Google Books API's)
+*NOW* Provides a Kindle Style book list and Wishlist, where you can see the cover of your books in color, with authors and book titles. (Through the Help of Google Books API's)
 Also provides an external folder with Better formatting you can find in the "BooksDataFolder" under wishlist and covers.
 
 Fast database insertion / Editing
@@ -27,7 +27,7 @@ Link: https://console.cloud.google.com/apis/credentials?pli=1&project=eminent-bo
 
 (Note, There is a limit of loading 1000 unique books per day, where previous books will be saved after the first day so you can have thousands of books after a few days)
 
-Then, Download your current spreadsheet of books, find it in your downloads folder, and click "Copy as Path" which you then enter as prompted. (MAKE SURE TO REMOVE THE QUOTATION MARKS FROM THE PATH)
+Then, Download your current spreadsheet of books, find it in your downloads folder, and click "Copy as Path" which you then enter as prompted.
 If you're just starting, theres an option to automatically create an empty spreadsheet for you.
 
 That's it!. It may seem complex, but once you download and read the instructions, its as easy as 3 steps. Download, Create an API Key, and Create a Spreadsheet, and you'll be good to go!
