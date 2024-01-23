@@ -1,7 +1,7 @@
 # FINALIZED
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QWidget, QTableWidget, QVBoxLayout, QTableWidgetItem, QPushButton, \
-    QHBoxLayout, QLabel, QSpacerItem, QSizePolicy, QLineEdit, QComboBox, QMessageBox, QInputDialog
+    QHBoxLayout, QLabel, QSpacerItem, QSizePolicy, QLineEdit, QComboBox, QMessageBox, QInputDialog, QMenu
 from PySide6.QtCore import Qt
 from convert_to_spread import export_database_to_spreadsheet
 
@@ -29,6 +29,8 @@ class BookListPage(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
+        self.column_widths_file = 'BooksDataFolder/userSettings.txt'  # File path
+
         self.is_loading_data = False
         self.changed_rows = set()  # Initialize changed_rows here
         self.row_id_map = {}  # Dictionary to map table rows to database IDs
@@ -61,14 +63,16 @@ class BookListPage(QWidget):
         ])
 
         # Define custom widths for each column
-        column_widths = [135, 100, 127, 65, 120, 300, 340, 90, 120]
 
-        # Set the width for each column
-        for column in range(self.table.columnCount()):
-            self.table.setColumnWidth(column, column_widths[column])
 
         # Enable word wrap in cells
         self.table.setWordWrap(True)
+
+        self.table.horizontalHeader().sectionResized.connect(self.column_resized)
+
+        # Load saved column widths (if any), otherwise set default widths
+        self.load_column_widths()
+
 
         # Adjust row heights to accommodate wrapped text
         self.table.resizeRowsToContents()
@@ -100,6 +104,8 @@ class BookListPage(QWidget):
         self.addFiveRowsButton.clicked.connect(lambda: self.add_new_rows(5))
         buttonLayout.addWidget(self.addFiveRowsButton)
 
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table.customContextMenuRequested.connect(self.table_context_menu)
 
 
 
@@ -107,6 +113,8 @@ class BookListPage(QWidget):
         buttonLayout.addWidget(self.sortLabel)
 
         self.sortComboBox = QComboBox(self)
+        self.sortComboBox.addItem("Select a category")  # Adding a placeholder item
+
         self.sortComboBox.addItems(["Author", "Book Title", "Narrator", "Service"])
         self.sortComboBox.currentIndexChanged.connect(self.sort_table)  # Connect to the sorting function
         buttonLayout.addWidget(self.sortComboBox)
@@ -167,6 +175,12 @@ class BookListPage(QWidget):
         self.downloadButton = QPushButton('Download as Spreadsheet')
         self.downloadButton.clicked.connect(self.download_spreadsheet)
         mainLayout.addWidget(self.downloadButton)
+
+    def column_resized(self, column, oldWidth, newWidth):
+        self.save_column_widths()
+
+
+
 
     def save_changes_to_db(self):
         conn = sqlite3.connect('BooksDataFolder/books.db')
@@ -348,6 +362,8 @@ class BookListPage(QWidget):
         self.is_loading_data = False
 
     def sort_table(self, index):
+        if index == 0:  # Placeholder item is at index 0
+            return
         column_mapping = {
             "Book Title": 0,  # "Book Title" corresponds to the first column
             "Author": 1,      # "Author" to the second column
@@ -418,3 +434,55 @@ class BookListPage(QWidget):
                                     f"Spreadsheet downloaded successfully to {output_path}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
+
+    def table_context_menu(self, position):
+        menu = QMenu(self.table)
+
+        # Add actions for inserting rows
+        insert_above_action = menu.addAction("Insert Row Above")
+        insert_below_action = menu.addAction("Insert Row Below")
+
+        action = menu.exec_(self.table.viewport().mapToGlobal(position))
+
+        if action == insert_above_action:
+            self.insert_row_above()
+        elif action == insert_below_action:
+            self.insert_row_below()
+
+    def insert_row_above(self):
+        current_row = self.table.currentRow()
+        if current_row >= 0:
+            self.table.insertRow(current_row)
+
+    def insert_row_below(self):
+        current_row = self.table.currentRow()
+        if current_row >= 0:
+            self.table.insertRow(current_row + 1)
+
+    def save_column_widths(self):
+        with open(self.column_widths_file, 'w') as file:
+            for column in range(self.table.columnCount()):
+                width = self.table.columnWidth(column)
+                file.write(str(width) + '\n')
+
+    def load_column_widths(self):
+        try:
+            with open(self.column_widths_file, 'r') as file:
+                widths = file.readlines()
+                for column, width in enumerate(widths):
+                    self.table.setColumnWidth(column, int(width.strip()))
+        except FileNotFoundError:
+            # File not found, set default widths
+            self.set_default_column_widths()
+
+    def set_default_column_widths(self):
+        default_widths = [135, 100, 127, 65, 120, 300, 340, 90, 120]
+
+        # Check if the file exists
+        if not os.path.exists(self.column_widths_file):
+            with open(self.column_widths_file, 'w') as file:
+                for width in default_widths:
+                    file.write(str(width) + '\n')
+
+        # Now set the column widths from the file
+        self.load_column_widths()
